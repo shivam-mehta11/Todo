@@ -1,5 +1,5 @@
 //const MongoClient = require('mongodb').MongoClient;
-var {MongoClient,ObjectId}= require('mongodb');
+var {MongoClient,ObjectId}= require('mongodb'); // Es6 feature
 //var obj = new ObjectId();
 //console.log(obj);
 MongoClient.connect('mongodb://localhost:27017/TodoApp',function(err,db){
@@ -14,8 +14,14 @@ console.log('Connected to MongoDB server');
 // },function(err){
 //   console.log('Unable to fetch todos',err);
 // });
-db.collection('Todos').find({name:'Shivam'}).toArray().then(function(docs){
-   console.log(JSON.stringify(docs,undefined,2));
-});
+// db.collection('User').find({completed:true}).toArray().then(function(docs){ // to find the data
+//
+//    console.log(JSON.stringify(docs,undefined,2));
+// });
+db.collection('Todos')
+.find()
+.count()
+.then(function(count){
+console.log(`Todos count: ${count}`);})
 
 });

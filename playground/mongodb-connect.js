@@ -16,17 +16,36 @@ console.log('Connected to MongoDB server');
 //   }
 //   console.log(JSON.stringify(result.ops,undefined,2));
 //   db.close(); });
-//
 // });
-db.collection('User').insertOne({
+db.collection('Todos').insertOne({  // to insert entry
   Name:'Shivam',
   location:'Delhi',
   age: '20'
 },function(err,result){
   if(err){
-    return console.log('Unable to insert Users');
-  }
+    return console.log('Unable to insert Users');  }
   console.log(JSON.stringify(result.ops,undefined,2));
   db.close(); });
 
+  db.collection('User').insertOne({  // to insert entry
+  text:'Hello Mr.',
+  completed: true
+  },function(err,result){
+    if(err){
+      return console.log('Unable to insert Users');  }
+    console.log(JSON.stringify(result.ops,undefined,2));
+    db.close(); });
+
+
 });
+
+// db.collection('Todos').insertOne({
+//   Name:'Shivam Mehta',
+//   location:'Delhi',
+//   age: '25'
+// },function(err,result){
+//   if(err){
+//     return console.log('Unable to insert Users');  }
+//   console.log(JSON.stringify(result.ops,undefined,2));
+//   db.close(); });
+// });
