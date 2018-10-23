@@ -1,71 +1,24 @@
-// var express = require('express');
-// var bodyParser = require('body-parser');
-//
-// var {mongoose} = require('./db/mongoose');
-// var {Todo} = require('./models/todo');
-// var {User} = require('./models/user');
-// var {ObjectID} = require('mongodb');
-//
-// var app = express();
-//
-// app.use(bodyParser.json());
-//
-// app.post('/todos', (req, res) => {
-//   var todo = new Todo({
-//     text: req.body.text
-//   });
-//
-//   todo.save().then((doc) => {
-//     res.send(doc);
-//   }, (e) => {
-//     res.status(400).send(e);
-//   });
-// });
-// app.get('/todos',function(req,res){
-//   Todo.find().then(function(doc,e){
-//     res.send({doc}) ;
-//     if(e){
-//       res.status(400).send(e);
-//     }
-//   }) ;
-// });
-//
-// app.get('/todos/:id',function(req,res){
-//   var id = req.params.id;
-//   if(!ObjectID.isValid(id)){
-//     console.log('Id not valid');
-//     return res.status(404).send();
-//   };
-// });
-//
-// app.get('/todos/:id',function(req,res){
-//   res.send(req.params);
-//
-// });
-//
-//
-//
-//
-// app.listen(3000, () => {
-//   console.log('Started on port 3000');
-// });
-//
-//
-// module.exports = {app};
-
-
-
-var express = require('express');
-var bodyParser = require('body-parser');
-var {ObjectID} = require('mongodb');
+var env =process.env.NODE_ENV||'development';
+console.log('env *******',env);
+const _ = require('lodash');
+if(env==='development'){
+  process.env.PORT=3000;
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoApp';
+}else if(env==='test') {
+  process.env.PORT=3000;
+  process.env.MONGODB_URI || 'mongodb://localhost:27017/TodoAppTest';
+}
+const express = require('express');
+const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
-const port = process.env.PORT || 3000;
 
 var app = express();
 
+const port =process.env.PORT;
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
@@ -106,8 +59,52 @@ app.get('/todos/:id', (req, res) => {
   });
 });
 
+app.delete('/todos/:id', (req, res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+
+app.patch('/todos/:id', (req, res) => {
+  var id = req.params.id;
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  })
+});
+
 app.listen(port, () => {
-  console.log(`Started on port ${port}`);
+  console.log(`Started up at port ${port}`);
 });
 
 module.exports = {app};
